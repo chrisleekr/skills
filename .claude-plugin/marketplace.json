@@ -1,0 +1,34 @@
+{
+  "name": "chrisleekr-skills",
+  "owner": {
+    "name": "Chris Lee",
+    "email": "git@chrislee.kr"
+  },
+  "metadata": {
+    "description": "Chris Lee's personal Claude Code skills",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "clean-comments",
+      "description": "Review, clean, and improve code comments, docstrings, and inline documentation.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/clean-comments"]
+    },
+    {
+      "name": "improve-codebase",
+      "description": "Explore a codebase across architecture, testability, performance, and security lenses to surface improvements and emit a refactor RFC.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/improve-codebase"]
+    },
+    {
+      "name": "pre-compact",
+      "description": "Snapshot critical session context (task, progress, decisions, blockers, git state) before running /compact.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/pre-compact"]
+    }
+  ]
+}
