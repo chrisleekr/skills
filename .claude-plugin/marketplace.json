@@ -5,8 +5,7 @@
     "email": "git@chrislee.kr"
   },
   "metadata": {
-    "description": "Chris Lee's personal agent skills",
-    "version": "1.0.0"
+    "description": "Chris Lee's personal agent skills"
   },
   "renames": {
     "pre-compact": null
