@@ -1,0 +1,20 @@
+{
+  "skill_name": "clean-comments",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "tidy up the comments on this branch before I open the PR",
+      "expected_output": "A per-file table of DELETE, REWRITE and KEEP actions limited to changed lines, then a stop to wait for approval."
+    },
+    {
+      "id": 2,
+      "prompt": "my base branch is develop. clean up the AI docstrings in src/user.py",
+      "expected_output": "Diffs against develop, proposes removing boilerplate docstrings on trivial functions, and keeps comments that explain why."
+    },
+    {
+      "id": 3,
+      "prompt": "a reviewer said my comments just restate the code, can you go through what i changed",
+      "expected_output": "Proposes deleting comments that restate the code, keeps comments that explain why, and waits for approval before editing."
+    }
+  ]
+}

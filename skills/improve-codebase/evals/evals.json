@@ -1,0 +1,20 @@
+{
+  "skill_name": "improve-codebase",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "this repo is getting hard to test, where should we refactor?",
+      "expected_output": "Confirms code mode, asks which lenses to use, reads references/code.md, and presents numbered candidates before proposing solutions."
+    },
+    {
+      "id": 2,
+      "prompt": "our docs folder feels stale and hard to navigate, what should we fix first?",
+      "expected_output": "Confirms docs mode, reads references/docs.md and not the other mode files, and uses docs lenses and Template D."
+    },
+    {
+      "id": 3,
+      "prompt": "review the UI at http://localhost:3000, the mobile view looks broken",
+      "expected_output": "Selects ui mode and checks that Playwright is reachable. If it is not, says so and stops without reasoning about the UI from source alone."
+    }
+  ]
+}
