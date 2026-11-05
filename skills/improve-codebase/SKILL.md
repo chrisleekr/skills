@@ -1,11 +1,13 @@
 ---
 name: improve-codebase
-description: Explore a codebase, a documentation folder, or a running web frontend through one or more lenses to surface improvement opportunities, design alternatives in parallel, and emit an RFC. Code lenses architecture, testability, performance, security, and quality (readability, duplication, dead-code, maintainability). Docs lenses accuracy, structure, clarity, consistency. UI/UX lenses responsive layout, usability heuristics, visual consistency. Use when the user wants to find refactoring opportunities, improve testability, fix performance hotspots, harden security surfaces, improve readability, remove duplication or dead code, pay down maintainability debt, improve documentation, or improve the rendered UI/UX of a running web app.
+description: Analyze a codebase, documentation folder, or running web frontend and produce an RFC of prioritized improvements. Use when the user asks where to refactor, how to improve testability, performance, security, readability, or maintainability, wants to find duplication or dead code, says the docs are stale or hard to navigate, or wants a UI/UX review of a running web app. Do not use when a specific fix or diff review is already scoped.
+license: MIT
+compatibility: "Requires git. ui mode requires a Playwright MCP server. Issue output requires gh or glab."
 ---
 
 # Improve Codebase
 
-Explore a codebase, a documentation folder, or a running web frontend like an AI would, surface friction across selected lenses, design alternatives in parallel, and produce an RFC.
+Analyze a codebase, a documentation folder, or a running web frontend, surface friction across selected lenses, design alternatives in parallel, and produce an RFC.
 
 The skill runs in one of three **modes**, picked per run and mutually exclusive:
 
@@ -15,7 +17,7 @@ The skill runs in one of three **modes**, picked per run and mutually exclusive:
 
 The explore → present → design → RFC → loop spine is identical across modes; only the lenses, heuristics, categories, design constraints, and RFC template differ. `ui` mode additionally drives a live browser session during exploration and verification (it still modifies no source files until step 7).
 
-Per-lens heuristics, dependency / risk / fix-dependency categories, solution-presentation rules, and RFC templates: see [REFERENCE.md](REFERENCE.md).
+After step 0 fixes the mode, read its reference file for heuristics, categories, design constraints, and RFC templates: [references/code.md](references/code.md), [references/docs.md](references/docs.md), or [references/ui.md](references/ui.md). Read [references/solutions.md](references/solutions.md) before step 6.
 
 ## When to use
 
@@ -28,8 +30,8 @@ Per-lens heuristics, dependency / risk / fix-dependency categories, solution-pre
 ## When NOT to use
 
 - The user has already named the file, function, or doc to change (use direct edit)
-- The user wants a code review on a diff (use the review skill)
-- The user wants a single fix shipped (use `pr-auto-github` or `pr-auto-gitlab`)
+- The user wants a code review on a diff
+- The user wants a single fix shipped (make the change directly)
 
 ## Process
 
@@ -44,14 +46,14 @@ Per-lens heuristics, dependency / risk / fix-dependency categories, solution-pre
   - Predominantly source → `code` mode
   - Mixed or ambiguous → ask the user which the run targets; a run is one mode, never both
   State the detected mode back to the user and confirm before proceeding.
-- **Gather recent-context bundle** to feed the explorers in step 2. Mature repos churn fast and cold-context lenses repeatedly re-surface yesterday's fixes. Collect, but do NOT show the user:
+- **Gather a recent-context bundle** to feed the explorers in step 2. Mature repos churn fast and cold-context lenses repeatedly re-surface yesterday's fixes. Collect, but do NOT show the user:
   - Last 50 commit subjects: `git log --oneline -50`
   - If the project has auto-memory at `.claude/projects/.../memory/MEMORY.md` or `~/.claude/projects/.../memory/MEMORY.md` keyed by this working directory, read it (it's an index of one-liners).
   - If `CHANGELOG.md` or `docs/decisions/` exists at the repo root, grab the most recent ~20 entries.
   Cache the bundle as a single string under a few hundred lines. Step 2 will paste it into each explorer brief verbatim.
 - **`ui` mode pre-flight** (skip in `code` / `docs` modes):
   - **Non-web bail.** If the target is mobile / native / a Figma file or has no browser entry point, explain that Playwright drives only web browsers and stop. Offer `code` mode on the same repo instead.
-  - **Verify Playwright is reachable.** Discover the browser tools with `ToolSearch` (e.g. query `playwright browser navigate snapshot`, or `select:mcp__playwright__browser_navigate`). The exact namespace varies by environment (`mcp__playwright__browser_*` or `mcp__plugin_playwright_playwright__browser_*`); use whatever resolves. If nothing resolves, tell the user the Playwright MCP is not loaded this session and stop.
+  - **Verify Playwright is reachable.** Find the browser tools. In Claude Code, use `ToolSearch` (e.g. query `playwright browser navigate snapshot`, or `select:mcp__playwright__browser_navigate`). The exact namespace varies by environment (`mcp__playwright__browser_*` or `mcp__plugin_playwright_playwright__browser_*`); use whatever resolves. If nothing resolves, tell the user the Playwright MCP is not loaded this session and stop.
   - **Get the app under test.** Ask the user for the base URL (e.g. `http://localhost:3000`) and the routes / screens to review. Assume the app is already running; do NOT launch a dev server. If no URL is given, ask for one.
   - **Screenshot run dir.** Create a run-scoped temp dir `/tmp/improve-ui-<YYYYMMDD-HHMM>/`; explorers and verification save evidence there.
   - **Breakpoint set.** The responsive lens uses viewports 360, 768, 1024, 1440 px unless the user names others.
@@ -59,11 +61,11 @@ Per-lens heuristics, dependency / risk / fix-dependency categories, solution-pre
 
 ### 1. Pick lenses
 
-Ask via `AskUserQuestion` with `multiSelect: true`. The lens set for the current mode is in REFERENCE.md § Mode Matrix.
+Ask the user to pick one or more lenses (in Claude Code, `AskUserQuestion` with `multiSelect: true`). The lens set for the current mode is in § Mode Matrix.
 
 ### 2. Explore in parallel
 
-Spawn one `Agent` PER selected lens, in a single message. **Pick the subagent_type by what the lens needs:**
+Spawn one subagent PER selected lens, in parallel (in Claude Code, one `Agent` call per lens in a single message). If subagents are not available, run the lenses one at a time. **In Claude Code, pick the `subagent_type` by what the lens needs:**
 
 - `general-purpose` — default for every lens in this skill. Lenses here audit *whether existing code/docs are sound*, which requires reading whole files (mitigations often live below the read window of an excerpt-based search). The `Explore` agent's own description warns against using it for "code review, design-doc auditing, cross-file consistency checks, or open-ended analysis" — those describe every lens in this skill.
 - `Explore` — only if a lens degenerates into pure lookup ("where is X defined", "which files import Y"). Otherwise prefer `general-purpose`.
@@ -73,15 +75,15 @@ Each agent's brief includes:
 
 - Scope (paths from step 0) and the mode from step 0
 - **The recent-context bundle from step 0**, prefixed with: "These commits / memory entries describe work already shipped. Do NOT surface candidates that re-discover a fix that already landed. If a finding overlaps with a listed entry, either drop it or explain in one line why it's still incomplete."
-- The lens's heuristics block from REFERENCE.md, verbatim — but framed as *signals to investigate*, not a checklist to grind through.
+- The lens's heuristics block from the mode's reference file, verbatim — but framed as *signals to investigate*, not a checklist to grind through.
 - A "friction IS the signal" instruction. Explore organically; do NOT pattern-match heuristics mechanically.
 - **A read-whole-files instruction**: "Before flagging any candidate, read each cited file end-to-end. If the file already mitigates the concern (existing retry/backoff, existing batching, existing memoization, existing gate that prevents the hot path), drop the candidate. Cite the line range you read."
 - Output shape: a numbered list of 3 to 7 candidates, each carrying the step 3 fields (see § Mode Matrix for what each resolves to in the current mode)
 - An explicit instruction: "If nothing meaningful surfaces for this lens, return an empty list and say so. Do not invent weak candidates to fill quota — a 7/8 false-positive rate is worse than a 1/1 hit rate."
 
-**In `ui` mode**, each explorer brief instead includes the base URL, the route list, the screenshot run dir, the breakpoint set, and its lens heuristics from REFERENCE.md. Instruct the agent to:
+**In `ui` mode**, each explorer brief instead includes the base URL, the route list, the screenshot run dir, the breakpoint set, and its lens heuristics from the mode's reference file. Instruct the agent to:
 
-- Discover the Playwright browser tools via `ToolSearch`, then drive the app — never reason about the UI from source alone.
+- Discover the Playwright browser tools (in Claude Code, via `ToolSearch`), then drive the app — never reason about the UI from source alone.
 - Navigate each route. For the responsive lens, resize to each breakpoint (360 / 768 / 1024 / 1440) and screenshot. For the usability lens, drive the app into loading / empty / error states. For the visual lens, read computed styles via `browser_evaluate` (colors, spacing, font sizes) to detect off-scale values.
 - Save every screenshot to the run dir and, for each candidate, cite **screenshot path + route + viewport** (the render is the evidence, not a file:line).
 - "Render IS the signal" — judge the rendered page, not the code. Same empty-list-is-fine rule: do not invent weak candidates.
@@ -109,19 +111,19 @@ User-facing explanation:
 - Dependencies it would rely on
 - A rough illustrative sketch (NOT a proposal, only grounding); sketch type per § Mode Matrix
 
-Show this, then immediately proceed to step 6 so the user reads while sub-agents work.
+Show this, then immediately proceed to step 6 so the user reads while subagents work.
 
 ### 6. Design 3+ alternatives in parallel
 
-Spawn 3+ `Agent` sub-agents in a single message. Each brief includes the cluster (file or doc paths), coupling or risk detail, lens, category, and ONE differentiating constraint drawn from REFERENCE.md § Design Constraints for the candidate's lens.
+Spawn 3+ subagents in parallel, or design the alternatives one at a time if subagents are not available. Each brief includes the cluster (file or doc paths), coupling or risk detail, lens, category, and ONE differentiating constraint drawn from the Design Constraints section of the mode's reference file for the candidate's lens.
 
-Each sub-agent output: see "Solution Presentation" in REFERENCE.md. A mermaid before/after diagram is required.
+Each subagent output: see `references/solutions.md`. A mermaid before/after diagram is required.
 
-Present designs sequentially with their diagrams. Compare in a table (see REFERENCE.md). Give an **opinionated** recommendation. The user wants a strong read, not a menu. If elements from different designs combine well, propose a hybrid. User accepts or picks an alternative.
+Present designs sequentially with their diagrams. Compare in a table (see `references/solutions.md`). Give an **opinionated** recommendation. The user wants a strong read, not a menu. If elements from different designs combine well, propose a hybrid. User accepts or picks an alternative.
 
 ### 7. Emit the RFC
 
-Ask via `AskUserQuestion` where to write the RFC. Show only the options that pre-flight (step 0) deemed viable:
+Ask the user where to write the RFC. Show only the options that pre-flight (step 0) deemed viable:
 
 - **GitHub issue** → `gh issue create` (only if GitHub remote present and `gh` authenticated)
 - **GitLab issue** → `glab issue create` (only if GitLab remote present and `glab` authenticated)
@@ -133,3 +135,20 @@ RFC body template: see § Mode Matrix. Do NOT ask the user to review the RFC bef
 ### 8. Offer to loop
 
 Ask: "Want to tackle another candidate?" If yes, return to step 3 with the same candidate list (minus the one just shipped). If no, end.
+
+## Mode Matrix
+
+Step 0 resolves the run to one mode. Every later step reads the column for that
+mode from this table.
+
+| Aspect | `code` mode | `docs` mode | `ui` mode |
+|---|---|---|---|
+| Target | source repository | documentation folder | running web frontend (Playwright) |
+| Lenses (step 1) | architecture, testability, performance, security; quality: readability, duplication, dead-code, maintainability | accuracy, structure, clarity, consistency | responsive & layout, usability heuristics, visual consistency |
+| Cluster (step 3) | files or modules | docs or sections | screen / route + component(s) behind it |
+| Category (step 3) | dependency category (architecture / testability), risk severity (performance / security), or quality severity (readability / duplication / dead-code / maintainability) | fix-dependency category | UX severity (blocker / friction / polish) |
+| Replaced (step 3) | tests or checks the change makes redundant; for quality lenses, the duplicated or dead code the change removes | docs to delete or merge | one-off style or duplicated component to consolidate, or n/a |
+| Problem sketch (step 5) | code sketch | doc outline / IA sketch | annotated screenshot or wireframe |
+| Design constraints (step 6) | Design Constraints in `references/code.md` | Design Constraints in `references/docs.md` | Design Constraints in `references/ui.md` |
+| Diagram (step 6) | flowchart or class diagram, before / after | doc-map / IA-tree flowchart, before / after | before / after user-flow flowchart or layout map |
+| RFC template (step 7) | Templates A–C in `references/code.md`, selected by output channel | Template D in `references/docs.md` | Template E in `references/ui.md` |

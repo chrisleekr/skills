@@ -5,30 +5,25 @@
     "email": "git@chrislee.kr"
   },
   "metadata": {
-    "description": "Chris Lee's personal Claude Code skills",
-    "version": "1.0.0"
+    "description": "Chris Lee's personal agent skills"
+  },
+  "renames": {
+    "pre-compact": null
   },
   "plugins": [
     {
       "name": "clean-comments",
-      "description": "Review, clean, and improve code comments, docstrings, and inline documentation.",
+      "description": "Review and clean code comments and docstrings in the current branch's changes.",
       "source": "./",
       "strict": false,
       "skills": ["./skills/clean-comments"]
     },
     {
       "name": "improve-codebase",
-      "description": "Explore a codebase across architecture, testability, performance, and security lenses to surface improvements and emit a refactor RFC.",
+      "description": "Analyze a codebase, documentation folder, or running web frontend and produce an RFC of prioritized improvements.",
       "source": "./",
       "strict": false,
       "skills": ["./skills/improve-codebase"]
-    },
-    {
-      "name": "pre-compact",
-      "description": "Snapshot critical session context (task, progress, decisions, blockers, git state) before running /compact.",
-      "source": "./",
-      "strict": false,
-      "skills": ["./skills/pre-compact"]
     }
   ]
 }

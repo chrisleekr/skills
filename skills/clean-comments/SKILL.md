@@ -1,9 +1,12 @@
 ---
 name: clean-comments
 description: >
-  Review, clean, and improve code comments, docstrings, and inline documentation.
-  Removes noise while ensuring concise reasoning remains for future developers.
-  Use when reviewing comments, tidying docs, or improving code readability.
+  Review and clean code comments and docstrings in the current branch's changes:
+  delete noise and keep or rewrite comments that explain why. Use when the user
+  asks to tidy, review, or remove comments, or to clean up AI-generated docstrings
+  before a PR.
+license: MIT
+compatibility: Requires git.
 ---
 
 # Clean Comments Skill
@@ -25,13 +28,19 @@ The goal is not zero comments. It is zero _useless_ comments.
 
 **Only review comments in code changed on the current branch.**
 
-1. **Identify the diff scope.** Determine the base branch, then gather all changed files:
-   - Committed changes: `git diff main...HEAD --name-only`
+1. **Identify the diff scope.** Use the base branch the user names. Otherwise detect the default branch, and use `main` if this prints nothing:
+
+   ```bash
+   git symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##'
+   ```
+
+   Then gather all changed files:
+   - Committed changes: `git diff <base>...HEAD --name-only`
    - Uncommitted staged: `git diff --cached --name-only`
    - Uncommitted unstaged: `git diff --name-only`
      Combine these into the review scope. Do NOT review files outside this scope.
 
-2. **Read each changed file's diff.** Use `git diff main...HEAD -- <file>` to see
+2. **Read each changed file's diff.** Use `git diff <base>...HEAD -- <file>` to see
    exactly what changed. Understand the purpose of each change — new feature, bug fix,
    refactor — before evaluating any comment.
 
@@ -69,10 +78,17 @@ DO NOT update to preserve history; Git has the history.
 **C3 — No redundant comments**
 If the comment restates what the code says, it adds zero signal.
 DELETE:
+
+```js
 i++; // increment i
 return user; // returns the user
+```
+
 KEEP:
+
+```js
 i++; // compensate for 1-based display index (API contract)
+```
 
 **C4 — Write comments well**
 If a comment is worth writing, make it count:
@@ -133,23 +149,31 @@ These are the most common patterns Claude and other AI agents generate
 that must be actively suppressed:
 
 ❌ Boilerplate docstrings on trivial functions:
-def get_user(id): ... ← no docstring needed
+
+```python
+def get_user(id): ...  # ← no docstring needed
+```
 
 ❌ Commenting every parameter that names itself:
 
+```python
 # param id: the user id ← the name IS the documentation
+```
 
 ❌ Section dividers and visual noise:
 
+```python
 # ================== PROCESSING ==================
 
 # // ---------------------------------------------------------------------------
+```
 
 ❌ Restating what the next line does:
 
+```python
 # Create a new connection
-
 conn = create_connection()
+```
 
 ❌ JSDoc/Javadoc on every getter/setter:
 

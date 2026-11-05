@@ -1,0 +1,37 @@
+name: Validate skills
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install skills-ref
+        run: pip install "git+https://github.com/agentskills/agentskills@83021e2be457a9b6679148719c1f6074f0ad975e#subdirectory=skills-ref"
+      - name: Validate against the Agent Skills spec
+        run: for dir in skills/*/; do skills-ref validate "$dir"; done
+      - name: Check the manifest matches skills/
+        run: |
+          diff <(jq -r '.plugins[].skills[]' .claude-plugin/marketplace.json | sort) \
+               <(find skills -mindepth 1 -maxdepth 1 -type d | sed 's|^|./|' | sort)
+      - name: Check every skill has evals
+        run: for dir in skills/*/; do jq -e '.evals | length >= 3' "${dir}evals/evals.json"; done
+      - name: Check the CLI discovers every skill
+        run: |
+          npx -y skills@1.7.6 add ./ --list > list.txt
+          for dir in skills/*/; do grep -q "$(basename "$dir")" list.txt; done
