@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/chrisleekr/skills/compare/v1.0.0...v1.1.0) (2026-11-06)
+
+
+### Features
+
+* add pr-review-panel, update-packages-and-tooling and humanizer skills ([#4](https://github.com/chrisleekr/skills/issues/4)) ([0b5ce58](https://github.com/chrisleekr/skills/commit/0b5ce587803a24d4a07c6899059ab51f653b9494))
+
 ## 1.0.0 (2026-11-06)
 
 
