@@ -1,0 +1,20 @@
+{
+  "skill_name": "humanizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "humanize this: Our platform isn't just a tool, it's a game-changer. It seamlessly fosters collaboration, boosting speed by 40%.",
+      "expected_output": "Without the local model, removes the contrast and AI words, keeps the 40% figure, adds no facts, and lists any remaining issues."
+    },
+    {
+      "id": 2,
+      "prompt": "clean the AI tells out of docs/intro.md",
+      "expected_output": "Changes prose only and leaves code, commands, paths, links and front matter as they were."
+    },
+    {
+      "id": 3,
+      "prompt": "does this sound like AI? 'The new policy, adopted in 2021, requires two approvals.'",
+      "expected_output": "Finds no strong tell and leaves the sentence alone, rather than inventing problems."
+    }
+  ]
+}
