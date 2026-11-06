@@ -16,3 +16,7 @@ Agent skills distributed with the `skills` CLI and as Claude Code plugins.
 - No private paths or references to skills outside this repo.
 - Describe the capability first. Name agent-specific tools as examples, and give a fallback.
 - Declare real requirements in `compatibility`.
+
+## Releases
+
+release-please opens a Release PR from Conventional Commit titles. PRs are squash-merged, so the PR title sets the bump: `feat:` is minor, and `fix:` or `perf:` is patch. Merging the Release PR tags the release. Use `fix:` for skill wording changes, because `docs:` creates no release.
