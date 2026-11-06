@@ -65,7 +65,7 @@ Ask the user to pick one or more lenses (in Claude Code, `AskUserQuestion` with 
 
 ### 2. Explore in parallel
 
-Spawn one subagent PER selected lens, in parallel (in Claude Code, one `Agent` call per lens in a single message). If subagents are not available, run the lenses one at a time. **In Claude Code, pick the `subagent_type` by what the lens needs:**
+Spawn one subagent PER selected lens, in parallel (in Claude Code, one `Agent` call per lens in a single message). Do this however small the scope is, because separate contexts keep one lens from anchoring another. Only if the agent has no subagent capability, run the lenses one at a time. **In Claude Code, pick the `subagent_type` by what the lens needs:**
 
 - `general-purpose` — default for every lens in this skill. Lenses here audit *whether existing code/docs are sound*, which requires reading whole files (mitigations often live below the read window of an excerpt-based search). The `Explore` agent's own description warns against using it for "code review, design-doc auditing, cross-file consistency checks, or open-ended analysis" — those describe every lens in this skill.
 - `Explore` — only if a lens degenerates into pure lookup ("where is X defined", "which files import Y"). Otherwise prefer `general-purpose`.
@@ -115,7 +115,7 @@ Show this, then immediately proceed to step 6 so the user reads while subagents 
 
 ### 6. Design 3+ alternatives in parallel
 
-Spawn 3+ subagents in parallel, or design the alternatives one at a time if subagents are not available. Each brief includes the cluster (file or doc paths), coupling or risk detail, lens, category, and ONE differentiating constraint drawn from the Design Constraints section of the mode's reference file for the candidate's lens.
+Spawn 3+ subagents in parallel, however small the scope is, because independent designers produce different alternatives. Only if the agent has no subagent capability, design them one at a time. Each brief includes the cluster (file or doc paths), coupling or risk detail, lens, category, and ONE differentiating constraint drawn from the Design Constraints section of the mode's reference file for the candidate's lens.
 
 Each subagent output: see `references/solutions.md`. A mermaid before/after diagram is required.
 

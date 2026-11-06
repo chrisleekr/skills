@@ -24,6 +24,27 @@
       "source": "./",
       "strict": false,
       "skills": ["./skills/improve-codebase"]
+    },
+    {
+      "name": "pr-review-panel",
+      "description": "Review a diff through parallel correctness, security, and tests-and-docs lenses and return verified findings.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/pr-review-panel"]
+    },
+    {
+      "name": "update-packages-and-tooling",
+      "description": "Patch and bump packages, runtimes, tooling, and CI pins in risk order, verified by the repo's checks, as one PR or MR.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/update-packages-and-tooling"]
+    },
+    {
+      "name": "humanizer",
+      "description": "Rewrite AI-sounding text so it reads like a person wrote it, without changing what it says.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/humanizer"]
     }
   ]
 }

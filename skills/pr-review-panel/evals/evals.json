@@ -1,0 +1,20 @@
+{
+  "skill_name": "pr-review-panel",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "review my branch before I merge it",
+      "expected_output": "Diffs against the merge base, runs correctness, security and tests-and-docs lenses, and returns verified findings by severity with a must-fix list. Edits nothing."
+    },
+    {
+      "id": 2,
+      "prompt": "review this branch. main moved on after I branched",
+      "expected_output": "Reviews only the branch's own changes, and reports none of the commits added to main after the branch point."
+    },
+    {
+      "id": 3,
+      "prompt": "review my changes. acceptance criteria: 1. rejects empty input 2. logs the failure",
+      "expected_output": "Checks each criterion and flags any that is neither covered by a finding nor visibly satisfied by the diff."
+    }
+  ]
+}

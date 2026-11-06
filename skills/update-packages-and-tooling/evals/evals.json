@@ -1,0 +1,20 @@
+{
+  "skill_name": "update-packages-and-tooling",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "bump everything that's outdated in this repo",
+      "expected_output": "Lists manifests and asks which are in scope and the cooldown, runs the local gates as a baseline, and applies no version changes before plan approval."
+    },
+    {
+      "id": 2,
+      "prompt": "update our dependencies, including majors",
+      "expected_output": "Gives each major its own entry with changelog evidence and an impact verdict, and asks per item before applying."
+    },
+    {
+      "id": 3,
+      "prompt": "upgrade the packages. the lodash pin in package.json is deliberate",
+      "expected_output": "Leaves the pin alone, and lists it under stuck or held-back items."
+    }
+  ]
+}

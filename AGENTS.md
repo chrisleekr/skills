@@ -9,7 +9,8 @@ Agent skills distributed with the `skills` CLI and as Claude Code plugins.
 3. Say what the skill does and when to use it in `description`, and include the words users would type.
 4. Keep `SKILL.md` under 500 lines. Move detail to `references/`, and say when to read each file.
 5. Add `evals/evals.json` with at least three cases.
-6. Add the skill to `.claude-plugin/marketplace.json`, using `"source": "./"`, `"strict": false` and `"skills": ["./skills/<name>"]`, and to the list in `README.md`.
+6. Add the skill to `.claude-plugin/marketplace.json`, using `"source": "./"`, `"strict": false` and `"skills": ["./skills/<name>"]`, and to the matching category table in `README.md`.
+7. If the skill is adapted from third-party work, put its licence and `NOTICE.md` in the skill folder so they install with it, and link it from `THIRD_PARTY_NOTICES.md`.
 
 ## Portability
 
